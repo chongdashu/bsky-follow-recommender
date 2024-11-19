@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends
 from typing import List
-from ...services.bluesky.client import BlueskyClient
-from ...models.schemas.responses import UserProfile, RecommendationResponse
-from ...core.exceptions import BlueskyAPIError
+from app.services.bluesky.client import BlueskyClient
+from app.models.schemas.responses import UserProfile, RecommendationResponse
+from app.core.exceptions import BlueskyAPIError
+from app.services.recommendations.user_recommender import UserRecommender
 
 router = APIRouter(prefix="/recommendations", tags=["recommendations"])
 
@@ -33,14 +34,5 @@ async def get_recommended_users(
     Returns:
         List[RecommendationResponse]: List of recommended users with scores
     """
-    users = await client.get_user_suggestions(limit=limit)
-
-    # Convert to recommendation responses with mock scores
-    return [
-        RecommendationResponse(
-            user=user,
-            score=0.95,  # This would be replaced with actual recommendation logic
-            reason="Based on your interests and network",
-        )
-        for user in users
-    ]
+    recommender = UserRecommender(client)
+    return await recommender.get_recommendations(limit=limit)

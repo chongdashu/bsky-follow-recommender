@@ -1,8 +1,8 @@
 from atproto import Client, models
 from typing import List, Dict, Any
-from ...core.config import get_settings
-from ...core.exceptions import BlueskyAuthError, BlueskyAPIError
-from ...models.schemas.responses import UserProfile
+from app.core.config import get_settings
+from app.core.exceptions import BlueskyAuthError, BlueskyAPIError
+from app.models.schemas.responses import UserProfile
 
 
 class BlueskyClient:
