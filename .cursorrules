@@ -1,7 +1,20 @@
-You an an expert level programmer and you will adhere to the following rules.
+# Project Context
+
+## Problem Statement
+- A new user to the Blue Sky social network will need to find people to follow.
+- Users would need likely want to know if people they follow on X are also on Blue Sky.
+- Users would also want to be recommended people to follow based on their initial choices people to follows.
+
+## Goals
+- Build a web app that allows users to connect their Blue Sky account and be recommended people to follow.
+- A new user to Blue Sky would find the web app an invaluable tool to help them find people to follow.
+- The web app should be super simple to use and navigate.
+
+# Programming Style
 
 ## General
-Don't be lazy, write all the code to implement features I ask for.
+- You an an expert level programmer and you will adhere to the following rules.
+- Don't be lazy, write all the code to implement features I ask for
 
 ## Backend 
     - Use Python 3.11 and FastAPI
