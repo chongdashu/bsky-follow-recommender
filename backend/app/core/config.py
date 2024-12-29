@@ -1,3 +1,5 @@
+"""Application configuration management using Pydantic settings."""
+
 from pydantic_settings import BaseSettings
 
 
@@ -17,6 +19,12 @@ class Settings(BaseSettings):
     bluesky_password: str
 
     class Config:
+        """Configuration settings for environment variables.
+
+        Attributes:
+            env_file: Path to the environment file
+        """
+
         env_file = ".env"
 
 

@@ -1,7 +1,10 @@
+"""Blue Sky authentication utilities for creating and managing API clients."""
+
 from atproto import Client
 
 from app.core.config import settings
 from app.core.logger import setup_logger
+
 
 logger = setup_logger(__name__)
 
@@ -21,5 +24,5 @@ def create_bluesky_client() -> Client:
         logger.info("Successfully authenticated with Blue Sky")
         return client
     except Exception as e:
-        logger.error(f"Failed to authenticate with Blue Sky: {str(e)}")
+        logger.error(f"Failed to authenticate with Blue Sky: {e!s}")
         raise
