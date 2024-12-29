@@ -1,0 +1,67 @@
+{
+  // Python settings
+  "python.defaultInterpreterPath": "${workspaceFolder}/backend/venv/bin/python",
+  "python.analysis.typeCheckingMode": "basic",
+  "python.analysis.autoImportCompletions": true,
+
+  // Formatting and linting
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "explicit",
+    "source.organizeImports": "explicit"
+  },
+
+  // Ruff configuration
+  "ruff.enable": true,
+  "ruff.organizeImports": true,
+  "ruff.fixAll": true,
+  "ruff.path": ["${workspaceFolder}/backend/venv/bin/ruff"],
+
+  // Python formatting
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll": "explicit",
+      "source.organizeImports": "explicit"
+    },
+    "editor.rulers": [88],
+    "editor.tabSize": 4
+  },
+
+  // File associations
+  "files.associations": {
+    "*.py": "python",
+    "pyproject.toml": "toml",
+    "requirements.txt": "pip-requirements"
+  },
+
+  // Testing
+  "python.testing.pytestEnabled": true,
+  "python.testing.unittestEnabled": false,
+  "python.testing.nosetestsEnabled": false,
+  "python.testing.pytestArgs": ["backend/tests"],
+
+  // Environment
+  "python.envFile": "${workspaceFolder}/backend/.env",
+
+  // Exclude patterns
+  "files.exclude": {
+    "**/__pycache__": true,
+    "**/.pytest_cache": true,
+    "**/*.pyc": true,
+    ".coverage": true,
+    ".ruff_cache": true
+  },
+
+  // Terminal
+  "terminal.integrated.env.linux": {
+    "PYTHONPATH": "${workspaceFolder}/backend"
+  },
+  "terminal.integrated.env.osx": {
+    "PYTHONPATH": "${workspaceFolder}/backend"
+  },
+  "terminal.integrated.env.windows": {
+    "PYTHONPATH": "${workspaceFolder}/backend"
+  }
+}
