@@ -7,9 +7,12 @@ pydantic==2.6.1
 pydantic-settings==2.1.0
 python-dotenv==1.0.1
 
-# HTTP Client
-httpx==0.26.0
+# HTTP Clients
+httpx==0.25.2
 aiohttp==3.9.3
+
+# Blue Sky API
+atproto==0.0.43
 
 # Authentication and Security
 python-jose[cryptography]==3.3.0
