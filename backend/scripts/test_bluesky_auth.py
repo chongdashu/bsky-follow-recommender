@@ -66,7 +66,7 @@ def test_auth() -> None:
                 "Missing BLUESKY_IDENTIFIER or BLUESKY_PASSWORD in environment"
             )
 
-        client = create_bluesky_client(identifier=identifier, password=password)
+        client = create_bluesky_client(login=identifier, password=password)
         logger.info("Authentication test successful")
 
         # Ensure we have authenticated user information

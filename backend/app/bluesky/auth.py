@@ -1,64 +1,130 @@
 """Blue Sky authentication utilities for creating and managing API clients."""
 
-from datetime import datetime
-from typing import Any
+from datetime import datetime, timedelta
 
-import httpx
 from atproto import Client
 from fastapi import HTTPException, status
+from jose import jwt
 
+from app.core.config import get_settings
 from app.core.logger import setup_logger
 from app.models.user import AuthResponse, UserProfile
 
 
 logger = setup_logger(__name__)
+settings = get_settings()
 
 
-async def verify_credentials(identifier: str, password: str) -> tuple[bool, str | None]:
-    """Verify Blue Sky credentials by attempting to authenticate.
+class BlueskyAuthManager:
+    """Manages Bluesky authentication and client instances."""
 
-    Args:
-        identifier: Blue Sky account identifier (handle or email)
-        password: Blue Sky account password
+    _clients: dict[str, Client] = {}
 
-    Returns:
-        Tuple of (is_valid, error_message)
-    """
-    try:
-        client = Client()
-        client.login(identifier, password)
-        return True, None
-    except Exception as e:
-        logger.error(f"Authentication failed: {e!s}")
-        return False, str(e)
+    @classmethod
+    def get_client(cls, did: str) -> Client | None:
+        """Get cached client for user DID.
+
+        Args:
+            did: User's decentralized identifier
+
+        Returns:
+            Cached client instance or None if not found
+        """
+        return cls._clients.get(did)
+
+    @classmethod
+    def store_client(cls, did: str, client: Client) -> None:
+        """Store client instance for user DID.
+
+        Args:
+            did: User's decentralized identifier
+            client: Authenticated client instance
+        """
+        cls._clients[did] = client
+
+    @classmethod
+    def remove_client(cls, did: str) -> None:
+        """Remove stored client for user DID.
+
+        Args:
+            did: User's decentralized identifier
+        """
+        cls._clients.pop(did, None)
 
 
-def create_bluesky_client(identifier: str, password: str) -> Client:
+def create_bluesky_client(login: str, password: str) -> Client:
     """Create an authenticated Blue Sky client.
 
-    Args:
-        identifier: Blue Sky account identifier (handle or email)
+    Args:s
+        login: Blue Sky account identifier (handle or email)
         password: Blue Sky account password
 
     Returns:
-        An authenticated Blue Sky client instance
+        An authenticated Client instance
 
     Raises:
-        Exception: If authentication fails
+        HTTPException: If authentication fails
     """
     try:
         client = Client()
-        client.login(identifier, password)
-        logger.info("Successfully authenticated with Blue Sky")
+        client.login(login=login, password=password)
+        logger.info("Successfully created authenticated Blue Sky client")
         return client
     except Exception as e:
-        logger.error(f"Failed to authenticate with Blue Sky: {e!s}")
-        raise
+        logger.error(f"Failed to create Blue Sky client: {e!s}")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=str(e),
+        )
+
+
+def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
+    """Create JWT access token.
+
+    Args:
+        data: Data to encode in the token
+        expires_delta: Optional token expiration time
+
+    Returns:
+        Encoded JWT token
+    """
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.utcnow() + timedelta(
+            minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
+        )
+
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(
+        to_encode, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM
+    )
+    return encoded_jwt
+
+
+def create_refresh_token(data: dict) -> str:
+    """Create JWT refresh token.
+
+    Args:
+        data: Data to encode in the token
+
+    Returns:
+        Encoded JWT token
+    """
+    to_encode = data.copy()
+    expire = datetime.utcnow() + timedelta(
+        minutes=settings.REFRESH_TOKEN_EXPIRE_MINUTES
+    )
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(
+        to_encode, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM
+    )
+    return encoded_jwt
 
 
 async def authenticate_user(identifier: str, password: str) -> AuthResponse:
-    """
-    Authenticate user with Blue Sky credentials and return tokens.
+    """Authenticate user with Blue Sky credentials and return tokens.
 
     Args:
         identifier: Blue Sky identifier (handle or email)
@@ -71,48 +137,44 @@ async def authenticate_user(identifier: str, password: str) -> AuthResponse:
         HTTPException: If authentication fails
     """
     try:
-        # Blue Sky ATP authentication endpoint
-        auth_url = "https://bsky.social/xrpc/com.atproto.server.createSession"
+        # Create and authenticate client
+        client = create_bluesky_client(login=identifier, password=password)
 
-        async with httpx.AsyncClient() as client:
-            response = await client.post(
-                auth_url,
-                json={"identifier": identifier, "password": password},
-            )
+        if not client.me:
+            raise ValueError("No authenticated user found")
 
-            if response.status_code != 200:
-                raise HTTPException(
-                    status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail="Invalid credentials",
-                )
+        # Get full profile info
+        profile = client.app.bsky.actor.get_profile({"actor": client.me.did})
 
-            auth_data: dict[str, Any] = response.json()
+        # Store client for later use
+        BlueskyAuthManager.store_client(client.me.did, client)
 
-            # Extract user profile data from response
-            profile = UserProfile(
-                did=auth_data["did"],
-                handle=auth_data["handle"],
-                display_name=auth_data.get("displayName"),
-                avatar_url=auth_data.get("avatarUrl"),
-                following_count=0,  # Need to fetch from profile API
-                follower_count=0,  # Need to fetch from profile API
-                created_at=datetime.now(),  # Need to fetch actual creation date
-            )
-
-            # Create auth response with tokens
-            return AuthResponse(
-                access_jwt=auth_data["accessJwt"],
-                refresh_jwt=auth_data["refreshJwt"],
-                profile=profile,
-            )
-
-    except httpx.RequestError as e:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail=f"Error connecting to Blue Sky: {e!s}",
+        # Create user profile
+        user_profile = UserProfile(
+            did=client.me.did,
+            handle=profile.handle,
+            display_name=profile.display_name,
+            avatar_url=profile.avatar,
+            following_count=profile.follows_count or -1,
+            follower_count=profile.followers_count or -1,
+            created_at=datetime.now(),  # Use actual creation date if available
         )
+
+        # Create JWT tokens
+        token_data = {"sub": client.me.did}
+        access_token = create_access_token(token_data)
+        refresh_token = create_refresh_token(token_data)
+
+        # Create auth response with tokens and profile
+        return AuthResponse(
+            access_jwt=access_token,
+            refresh_jwt=refresh_token,
+            profile=user_profile,
+        )
+
     except Exception as e:
+        logger.error(f"Authentication failed: {e!s}")
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Authentication error: {e!s}",
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=str(e),
         )

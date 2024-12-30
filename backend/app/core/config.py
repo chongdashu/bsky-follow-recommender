@@ -15,6 +15,10 @@ class Settings(BaseSettings):
         BLUESKY_PASSWORD: Blue Sky user password
         DEBUG: Debug mode flag
         CORS_ORIGINS: List of allowed CORS origins
+        JWT_SECRET_KEY: JWT secret key
+        JWT_ALGORITHM: JWT algorithm
+        ACCESS_TOKEN_EXPIRE_MINUTES: Access token expiration minutes
+        REFRESH_TOKEN_EXPIRE_MINUTES: Refresh token expiration minutes
     """
 
     API_V1_STR: str
@@ -23,10 +27,15 @@ class Settings(BaseSettings):
     BLUESKY_PASSWORD: str
     DEBUG: bool = False
     CORS_ORIGINS: str
+    JWT_SECRET_KEY: str
+    JWT_ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 7 days
 
     model_config = SettingsConfigDict(
         env_file=".env",
         case_sensitive=True,
+        extra="allow",
     )
 
     @property

@@ -100,7 +100,7 @@ async def test_recommendations() -> None:
                 "Missing BLUESKY_IDENTIFIER or BLUESKY_PASSWORD in environment"
             )
 
-        client = create_bluesky_client(identifier=identifier, password=password)
+        client = create_bluesky_client(login=identifier, password=password)
         if not client.me:
             raise ValueError("Client not authenticated - no user information available")
 
