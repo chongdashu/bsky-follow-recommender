@@ -1,58 +1,33 @@
 """Router for Blue Sky authentication endpoints."""
 
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
+from fastapi import APIRouter, HTTPException, status
 
-from app.bluesky.auth import verify_credentials
-
-
-router = APIRouter()
+from app.bluesky.auth import authenticate_user
+from app.models.user import AuthResponse, UserAuth
 
 
-class BlueskyCredentials(BaseModel):
-    """Credentials for Blue Sky authentication.
+router = APIRouter(prefix="/auth", tags=["auth"])
 
-    Attributes:
-        identifier: Blue Sky account identifier (handle or email)
-        password: Blue Sky account password
+
+@router.post("/login", response_model=AuthResponse)
+async def login(credentials: UserAuth) -> AuthResponse:
     """
-
-    identifier: str
-    password: str
-
-
-class AuthResponse(BaseModel):
-    """Response model for authentication attempts.
-
-    Attributes:
-        is_valid: Whether the credentials are valid
-        error: Error message if authentication failed
-    """
-
-    is_valid: bool
-    error: str | None = None
-
-
-@router.post("/auth/verify", response_model=AuthResponse)
-async def verify_auth(credentials: BlueskyCredentials) -> AuthResponse:
-    """Verify Blue Sky credentials.
+    Authenticate user with Blue Sky credentials and return tokens
 
     Args:
-        credentials: Blue Sky authentication credentials
+        credentials: User authentication credentials
 
     Returns:
-        Authentication response indicating if credentials are valid
+        AuthResponse containing JWT tokens and user profile
 
     Raises:
-        HTTPException: If the authentication service is unavailable
+        HTTPException: If authentication fails
     """
     try:
-        is_valid, error = await verify_credentials(
-            credentials.identifier, credentials.password
+        auth_data = await authenticate_user(
+            identifier=credentials.identifier,
+            password=credentials.password,
         )
-        return AuthResponse(is_valid=is_valid, error=error)
+        return auth_data
     except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail="Authentication service unavailable",
-        ) from e
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))

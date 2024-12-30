@@ -49,6 +49,7 @@ backend/
     - Avoid Missing type annotation for function arguments and return values.
     - Avoid using Any type.
 - Use explicit types and/or pydantic models for all function parameters and return values.
+- Avoid relative imports.
 - Generate docstring for public modules and public nested classes
 - Write concise, technical responses with accurate Python examples. 
 - Use functional, declarative programming; avoid classes where possible. 
@@ -101,6 +102,7 @@ backend/
 ## Git
 
 When I say "/commit", you will give me the deliminated terminal command that will add files, include a full descriptive commit message, commit and push to git based on the Diff of Working State.
+When I say "/diff", you will summarise the diff of the working state.
 
 [git.commit]
 # Commit message pattern: <type>(<scope>): <description>
