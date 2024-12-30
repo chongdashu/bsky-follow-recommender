@@ -1,31 +1,49 @@
 """Application configuration management using Pydantic settings."""
 
-from typing import list
+from functools import lru_cache
 
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
     """Application settings.
 
     Attributes:
-        app_name: Name of the application
-        debug: Debug mode flag
-        cors_origins: List of allowed CORS origins
+        API_V1_STR: API version 1 string prefix
+        BLUESKY_API_URL: Blue Sky API base URL
+        BLUESKY_IDENTIFIER: Blue Sky user identifier
+        BLUESKY_PASSWORD: Blue Sky user password
+        DEBUG: Debug mode flag
+        CORS_ORIGINS: List of allowed CORS origins
     """
 
-    app_name: str = "Blue Sky Recommender"
-    debug: bool = False
-    cors_origins: list[str] = ["http://localhost:3000"]  # Add your frontend URL
+    API_V1_STR: str
+    BLUESKY_API_URL: str
+    BLUESKY_IDENTIFIER: str
+    BLUESKY_PASSWORD: str
+    DEBUG: bool = False
+    CORS_ORIGINS: str
 
-    class Config:
-        """Configuration settings for environment variables.
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        case_sensitive=True,
+    )
 
-        Attributes:
-            env_file: Path to the environment file
+    @property
+    def cors_origins(self) -> list[str]:
+        """Parse CORS_ORIGINS string into list.
+
+        Returns:
+            list[str]: List of allowed CORS origins
         """
+        return [origin.strip() for origin in self.CORS_ORIGINS.split(",") if origin]
 
-        env_file = ".env"
 
+@lru_cache
+def get_settings() -> Settings:
+    """Get cached settings instance.
 
-settings = Settings()
+    Returns:
+        Settings: Application settings instance
+    """
+    return Settings()
