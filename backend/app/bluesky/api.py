@@ -33,7 +33,7 @@ async def get_user_recommendations(
     client: Client,
     actor: str,
     recommender: RecommenderProtocol | None = None,
-) -> list[bsky_models.AppBskyActorDefs.ProfileView]:
+) -> list[bsky_models.AppBskyActorDefs.ProfileViewDetailed]:
     """Get recommended accounts for a user using the specified recommendation strategy.
 
     Args:
