@@ -44,6 +44,8 @@ backend/
     - Use Python 3.11 and FastAPI
     - Use ruff for linting and formatting and a .toml file for configuration
     - Avoid conflicting dependencies in requirements.txt
+    - Remember to create an .env.example file that mimics the .env file and includes all the variables that are needed for the app to run.
+    - Generate docstring for public modules and public nested classes
     - Write concise, technical responses with accurate Python examples. 
     - Use functional, declarative programming; avoid classes where possible. 
     - Prefer iteration and modularization over code duplication. 
@@ -91,3 +93,43 @@ backend/
     - When answering questions or providing solutions, take into account previously discussed or implemented features to prevent contradictions or repetitionsCode Output:
     - When providing code, always output the entire file content, not just new or modified parts- Include all necessary imports, declarations, and surrounding code to ensure the file is complete and functional
     - Provide comments or explanations for significant changes or additions within the file- If the file is too large to reasonably include in full, provide the most relevant complete section and clearly indicate where it fits in the larger file structureFollow Chrome Extension documentation for best practices, security guidelines, and API usage.
+
+## Git
+
+[git.commit]
+# Commit message pattern: <type>(<scope>): <description>
+# Example: feat(auth): add OAuth2 authentication
+pattern = "^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(?:\\([a-z ]+\\))?: [a-z].*$"
+
+# Commit types
+types = [
+  "build",    # Changes affecting build system or external dependencies
+  "chore",    # Regular maintenance tasks
+  "ci",       # Changes to CI configuration files and scripts
+  "docs",     # Documentation only changes
+  "feat",     # New features
+  "fix",      # Bug fixes
+  "perf",     # Performance improvements
+  "refactor", # Code changes that neither fix bugs nor add features
+  "revert",   # Revert previous commits
+  "style",    # Changes that do not affect code meaning (formatting, etc)
+  "test"      # Adding or modifying tests
+]
+
+# Maximum length for commit message title
+title_max_length = 72
+
+# Maximum length for commit message body
+body_max_length = 100
+
+# Require scope in commit message
+require_scope = false
+
+# Require body in commit message
+require_body = false
+
+# Require issue reference in commit message
+require_issue = false
+
+# Issue reference pattern (e.g., #123 or PROJECT-123)
+issue_pattern = "(#\\d+|[A-Z]+-\\d+)" 
