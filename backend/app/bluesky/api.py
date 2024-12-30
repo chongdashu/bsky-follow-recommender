@@ -1,8 +1,8 @@
 """Blue Sky API client functions for fetching user data and recommendations."""
 
-
 from atproto import Client, models as bsky_models
 
+from app.bluesky.recommenders import BasicRecommender, RecommenderProtocol
 from app.core.logger import setup_logger
 
 
@@ -30,20 +30,23 @@ async def get_user_follows(
 
 
 async def get_user_recommendations(
-    client: Client, actor: str
+    client: Client,
+    actor: str,
+    recommender: RecommenderProtocol | None = None,
 ) -> list[bsky_models.AppBskyActorDefs.ProfileView]:
-    """Get recommended accounts for a user.
+    """Get recommended accounts for a user using the specified recommendation strategy.
 
     Args:
         client: Authenticated Blue Sky client
         actor: The user's handle or DID
+        recommender: Strategy to use for recommendations. Defaults to BasicRecommender
 
     Returns:
         List of ProfileView objects representing recommended accounts
     """
     try:
-        response = client.app.bsky.actor.get_suggestions({"limit": 50})
-        return response.actors
+        recommender = recommender or BasicRecommender()
+        return await recommender.get_recommendations(client, actor)
     except Exception as e:
         logger.error(f"Failed to get recommendations for {actor}: {e!s}")
         raise
