@@ -1,8 +1,12 @@
 """Test script for Blue Sky user follows and recommendations functionality."""
 
 import asyncio
+import os
 import sys
 from pathlib import Path
+
+from atproto import Client
+from dotenv import load_dotenv
 
 from app.bluesky.api import get_user_follows
 from app.bluesky.auth import create_bluesky_client
@@ -14,15 +18,17 @@ from app.core.logger import setup_logger
 project_root = str(Path(__file__).parent.parent)
 sys.path.append(project_root)
 
+# Load environment variables
+load_dotenv()
 
 logger = setup_logger(__name__)
 
 
-async def test_basic_recommender(client) -> None:
+async def test_basic_recommender(client: Client) -> None:
     """Test the basic recommender that uses Blue Sky's built-in suggestions.
 
     Args:
-        client: Authenticated Blue Sky client
+        client: The authenticated Bluesky client
     """
     try:
         recommender = BasicRecommender()
@@ -43,11 +49,11 @@ async def test_basic_recommender(client) -> None:
         raise
 
 
-async def test_common_followers_recommender(client) -> None:
+async def test_common_followers_recommender(client: Client) -> None:
     """Test the common followers recommender with seed accounts.
 
     Args:
-        client: Authenticated Blue Sky client
+        client: The authenticated Bluesky client
     """
     try:
         # Test with some popular tech accounts as seeds
@@ -85,7 +91,16 @@ async def test_common_followers_recommender(client) -> None:
 async def test_recommendations() -> None:
     """Test both recommendation strategies."""
     try:
-        client = create_bluesky_client()
+        # Get credentials from environment
+        identifier = os.getenv("BLUESKY_IDENTIFIER")
+        password = os.getenv("BLUESKY_PASSWORD")
+
+        if not identifier or not password:
+            raise ValueError(
+                "Missing BLUESKY_IDENTIFIER or BLUESKY_PASSWORD in environment"
+            )
+
+        client = create_bluesky_client(identifier=identifier, password=password)
         if not client.me:
             raise ValueError("Client not authenticated - no user information available")
 
@@ -94,7 +109,7 @@ async def test_recommendations() -> None:
         logger.info(f"User currently follows {len(follows)} accounts")
 
         # Test both recommenders
-        # await test_basic_recommender(client)
+        await test_basic_recommender(client)
         await test_common_followers_recommender(client)
 
     except Exception as e:

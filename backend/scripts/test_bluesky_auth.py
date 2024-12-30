@@ -1,8 +1,11 @@
 """Test script for validating Blue Sky authentication and profile retrieval."""
 
+import os
 import sys
 from pathlib import Path
-from typing import Any
+
+from atproto import Client
+from dotenv import load_dotenv
 
 from app.bluesky.auth import create_bluesky_client
 from app.core.logger import setup_logger
@@ -12,11 +15,13 @@ from app.core.logger import setup_logger
 project_root = str(Path(__file__).parent.parent)
 sys.path.append(project_root)
 
+# Load environment variables
+load_dotenv()
 
 logger = setup_logger(__name__)
 
 
-def get_following(client: Any) -> None:
+def get_following(client: Client) -> None:
     """
     Retrieve and log information about accounts the user follows.
 
@@ -52,7 +57,16 @@ def get_following(client: Any) -> None:
 def test_auth() -> None:
     """Test Blue Sky authentication and fetch user profile and following list."""
     try:
-        client = create_bluesky_client()
+        # Get credentials from environment
+        identifier = os.getenv("BLUESKY_IDENTIFIER")
+        password = os.getenv("BLUESKY_PASSWORD")
+
+        if not identifier or not password:
+            raise ValueError(
+                "Missing BLUESKY_IDENTIFIER or BLUESKY_PASSWORD in environment"
+            )
+
+        client = create_bluesky_client(identifier=identifier, password=password)
         logger.info("Authentication test successful")
 
         # Ensure we have authenticated user information
