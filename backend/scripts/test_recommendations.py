@@ -21,6 +21,8 @@ async def test_recommendations() -> None:
     """Test getting follows and recommendations."""
     try:
         client = create_bluesky_client()
+        if not client.me:
+            raise ValueError("Client not authenticated - no user information available")
 
         # Get user's follows
         follows = await get_user_follows(client, client.me.did)
@@ -32,7 +34,9 @@ async def test_recommendations() -> None:
 
         # Print first 5 recommendations
         for rec in recommendations[:5]:
-            logger.info(f"Recommended: {rec.get('displayName')} (@{rec.get('handle')})")
+            display_name = rec.display_name or "No display name"
+            handle = rec.handle
+            logger.info(f"Recommended: {display_name} (@{handle})")
 
     except Exception as e:
         logger.error(f"Recommendation test failed: {e!s}")
