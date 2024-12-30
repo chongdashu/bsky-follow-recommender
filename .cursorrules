@@ -100,6 +100,8 @@ backend/
 
 ## Git
 
+When I say "/commit", you will give me the deliminated terminal command that will add files, include a full descriptive commit message, commit and push to git based on the Diff of Working State.
+
 [git.commit]
 # Commit message pattern: <type>(<scope>): <description>
 # Example: feat(auth): add OAuth2 authentication
