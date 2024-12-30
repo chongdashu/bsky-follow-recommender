@@ -3,17 +3,20 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.core.config import settings
-from app.routers import auth
+from app.core.config import get_settings
 
+
+settings = get_settings()
 
 app = FastAPI(
-    title=settings.app_name,
-    description="API for Blue Sky user recommendations",
+    title="Blue Sky Follow Recommender",
+    description="API for recommending Blue Sky users to follow",
     version="0.1.0",
+    docs_url="/docs",
+    redoc_url="/redoc",
 )
 
-# Configure CORS
+# Setup CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
@@ -22,5 +25,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include routers
-app.include_router(auth.router, prefix="/api/v1", tags=["auth"])
+
+@app.get("/health")
+async def health_check() -> dict[str, str]:
+    """
+    Health check endpoint to verify API is running.
+
+    Returns:
+        dict: Status message indicating the API is running
+    """
+    return {"status": "healthy"}
