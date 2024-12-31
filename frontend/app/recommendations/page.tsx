@@ -2,59 +2,43 @@
 
 import { ProfileCard } from "@/components/recommendations/profile-card";
 import { Separator } from "@/components/ui/separator";
+import { useToast } from "@/hooks/use-toast";
+import { api } from "@/lib/api";
 import { BlueskyProfile } from "@/types";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function RecommendationsPage() {
   const [profile, setProfile] = useState<BlueskyProfile | null>(null);
   const [follows, setFollows] = useState<BlueskyProfile[]>([]);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+  const { toast } = useToast();
 
   useEffect(() => {
-    // TODO: Replace with actual API calls
-    setProfile({
-      did: "did:plc:123",
-      handle: "alice.bsky.social",
-      displayName: "Alice",
-      description: "Just a girl in a Bluesky world",
-      avatar: "https://example.com/avatar.jpg",
-      followersCount: 1234,
-      followsCount: 567,
-      postsCount: 890,
-    });
+    async function loadProfile() {
+      try {
+        const userProfile = await api.getCurrentProfile();
+        setProfile(userProfile);
+      } catch (error) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to load profile. Please try logging in again.",
+        });
+        // Redirect to login if unauthorized
+        router.push("/login");
+      } finally {
+        setLoading(false);
+      }
+    }
 
-    setFollows([
-      {
-        did: "did:plc:456",
-        handle: "bob.bsky.social",
-        displayName: "Bob",
-        description: "Software developer and coffee enthusiast",
-        avatar: "https://example.com/bob-avatar.jpg",
-        followersCount: 2345,
-        followsCount: 678,
-        postsCount: 901,
-      },
-      {
-        did: "did:plc:789",
-        handle: "carol.bsky.social",
-        displayName: "Carol",
-        description: "Digital artist • Photography • Design",
-        avatar: "https://example.com/carol-avatar.jpg",
-        followersCount: 3456,
-        followsCount: 789,
-        postsCount: 912,
-      },
-      {
-        did: "did:plc:012",
-        handle: "dave.bsky.social",
-        displayName: "Dave",
-        description: "Tech writer and blockchain enthusiast",
-        avatar: null,
-        followersCount: 4567,
-        followsCount: 890,
-        postsCount: 923,
-      },
-    ]);
-  }, []);
+    loadProfile();
+  }, [router, toast]);
+
+  if (loading) {
+    return <div className="container mx-auto py-8">Loading...</div>;
+  }
 
   if (!profile) return null;
 

@@ -75,6 +75,27 @@ class ApiClient {
 
     return response.json();
   }
+
+  /**
+   * Fetches the current user's profile
+   */
+  async getCurrentProfile(): Promise<BlueskyProfile> {
+    if (!this.token) {
+      throw new Error("Not authenticated");
+    }
+
+    const response = await fetch(`${this.baseUrl}/v1/profile`, {
+      headers: {
+        Authorization: `Bearer ${this.token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch profile");
+    }
+
+    return response.json();
+  }
 }
 
 export const api = new ApiClient();
