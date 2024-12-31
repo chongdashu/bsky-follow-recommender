@@ -29,7 +29,7 @@ export function LoginForm() {
         password: formData.get("password") as string,
       });
 
-      api.setToken(response.token);
+      api.setToken(response.access_jwt);
       router.push("/recommendations");
     } catch (err) {
       setError("Failed to login. Please check your credentials.");

@@ -7,8 +7,9 @@ export interface LoginCredentials {
 }
 
 export interface LoginResponse {
-  token: string;
-  user: {
+  access_jwt: string;
+  refresh_jwt: string;
+  profile: {
     did: string;
     handle: string;
     displayName?: string;
