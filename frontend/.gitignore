@@ -1,73 +1,41 @@
-# Next.js
-.next/
-out/
-build/
-dist/
-.swc/
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# Dependencies
-node_modules/
+# dependencies
+/node_modules
 /.pnp
-.pnp.js
-.yarn/install-state.gz
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
 
-# Testing
+# testing
 /coverage
-.nyc_output
 
-# Environment Variables
-.env*.local
-.env
-.env.development
-.env.test
-.env.production
+# next.js
+/.next/
+/out/
 
-# Debug
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+.pnpm-debug.log*
 
-# IDE
-.idea/
-.vscode/
-*.sublime-project
-*.sublime-workspace
-.project
-*.swp
-*.swo
+# env files (can opt-in for committing if needed)
+.env*
 
-# OS
-.DS_Store
-Thumbs.db
-*.pem
-
-# TypeScript
-*.tsbuildinfo
-next-env.d.ts
-
-# Vercel
+# vercel
 .vercel
 
-# PWA
-**/public/sw.js
-**/public/workbox-*.js
-**/public/worker-*.js
-**/public/sw.js.map
-**/public/workbox-*.js.map
-**/public/worker-*.js.map
-
-# Misc
-*.log
-.turbo
-.cache/
-.temp/
-
-# Local Netlify folder
-.netlify
-
-# Storybook
-storybook-static/
-
-# Bundle analyzer
-analyze/
-.analyze/
+# typescript
+*.tsbuildinfo
+next-env.d.ts
