@@ -16,7 +16,7 @@ class ApiClient {
   setToken(token: string): void {
     this.token = token;
     // Store token in cookie for persistence
-    document.cookie = `auth_token=${token}; path=/; max-age=86400`; // 24 hours
+    document.cookie = `auth_token=${token}; path=/; max-age=86400; SameSite=Strict`; // 24 hours
   }
 
   /**
@@ -24,8 +24,11 @@ class ApiClient {
    */
   clearToken(): void {
     this.token = null;
+    // Properly clear the cookie by setting an expired date
     document.cookie =
-      "auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+      "auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict";
+    // Force reload to trigger middleware
+    window.location.href = "/login";
   }
 
   /**
