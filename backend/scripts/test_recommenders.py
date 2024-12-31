@@ -2,16 +2,16 @@
 
 import asyncio
 import os
-import sys
 from pathlib import Path
+import sys
 
 from atproto import Client
 from dotenv import load_dotenv
 
-from app.bluesky.api import get_user_follows
 from app.bluesky.auth import create_bluesky_client
-from app.bluesky.recommenders import BasicRecommender, CommonFollowersRecommender
 from app.core.logger import setup_logger
+from app.services.recommenders.basic import BasicRecommender
+from app.services.recommenders.common_followers import CommonFollowersRecommender
 
 
 # Add the project root to Python path
@@ -50,27 +50,26 @@ async def test_basic_recommender(client: Client) -> None:
 
 
 async def test_common_followers_recommender(client: Client) -> None:
-    """Test the common followers recommender with seed accounts.
+    """Test the common followers recommender.
 
     Args:
         client: The authenticated Bluesky client
     """
     try:
-        # Test with some popular tech accounts as seeds
+        # Use some popular tech accounts as seed accounts
         seed_accounts = [
-            "togelius.bsky.social",
             "hamel.bsky.social",
+            "togelius.bsky.social",
             "karpathy.bsky.social",
+            "howard.fm",
         ]
 
         recommender = CommonFollowersRecommender(
             seed_accounts=seed_accounts, min_common_follows=2
         )
+        recommendations = await recommender.get_recommendations(client, client.me.did)
 
         logger.info("\n=== Common Followers Recommender Results ===")
-        logger.info(f"Using {len(seed_accounts)} seed accounts")
-
-        recommendations = await recommender.get_recommendations(client, client.me.did)
         logger.info(f"Found {len(recommendations)} recommendations")
 
         # Print first 5 recommendations
@@ -78,9 +77,6 @@ async def test_common_followers_recommender(client: Client) -> None:
             logger.info(
                 f"{i}. {rec.display_name or 'No display name'} (@{rec.handle})"
                 f"\n   Followers: {rec.followers_count:,}"
-                f"\n   Description: {rec.description[:100]}..."
-                if rec.description
-                else ""
             )
 
     except Exception as e:
@@ -88,34 +84,21 @@ async def test_common_followers_recommender(client: Client) -> None:
         raise
 
 
-async def test_recommendations() -> None:
-    """Test both recommendation strategies."""
+async def main() -> None:
+    """Run the recommendation tests."""
     try:
-        # Get credentials from environment
-        identifier = os.getenv("BLUESKY_IDENTIFIER")
-        password = os.getenv("BLUESKY_PASSWORD")
+        client = create_bluesky_client(
+            login=os.getenv("BLUESKY_IDENTIFIER"),
+            password=os.getenv("BLUESKY_PASSWORD"),
+        )
 
-        if not identifier or not password:
-            raise ValueError(
-                "Missing BLUESKY_IDENTIFIER or BLUESKY_PASSWORD in environment"
-            )
-
-        client = create_bluesky_client(login=identifier, password=password)
-        if not client.me:
-            raise ValueError("Client not authenticated - no user information available")
-
-        # Get user's follows as baseline
-        follows = await get_user_follows(client, client.me.did)
-        logger.info(f"User currently follows {len(follows)} accounts")
-
-        # Test both recommenders
         await test_basic_recommender(client)
         await test_common_followers_recommender(client)
 
     except Exception as e:
-        logger.error(f"Recommendation tests failed: {e!s}")
+        logger.error(f"Test failed: {e!s}")
         sys.exit(1)
 
 
 if __name__ == "__main__":
-    asyncio.run(test_recommendations())
+    asyncio.run(main())

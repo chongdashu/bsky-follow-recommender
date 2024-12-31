@@ -1,8 +1,8 @@
 """Test script for validating Blue Sky authentication and profile retrieval."""
 
 import os
-import sys
 from pathlib import Path
+import sys
 
 from atproto import Client
 from dotenv import load_dotenv
