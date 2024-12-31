@@ -19,6 +19,10 @@ export default function RecommendationsPage() {
       setRecommendations(response.recommendations);
     } catch (error) {
       console.error("Failed to fetch recommendations:", error);
+      // If unauthorized, clear token and redirect
+      if (error instanceof Error && error.message.includes("401")) {
+        api.clearToken();
+      }
     } finally {
       setLoading(false);
     }
