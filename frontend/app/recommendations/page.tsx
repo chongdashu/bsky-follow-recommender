@@ -12,19 +12,24 @@ export default function RecommendationsPage() {
   const [profile, setProfile] = useState<BlueskyProfile | null>(null);
   const [follows, setFollows] = useState<BlueskyProfile[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const { toast } = useToast();
 
   useEffect(() => {
     async function loadProfile() {
       try {
+        setError(null);
         const userProfile = await api.getCurrentProfile();
         setProfile(userProfile);
       } catch (error) {
+        const errorMessage =
+          "Failed to load profile. Please try logging in again.";
+        setError(errorMessage);
         toast({
           variant: "destructive",
           title: "Error",
-          description: "Failed to load profile. Please try logging in again.",
+          description: errorMessage,
         });
         // Redirect to login if unauthorized
         router.push("/login");
@@ -37,7 +42,21 @@ export default function RecommendationsPage() {
   }, [router, toast]);
 
   if (loading) {
-    return <div className="container mx-auto py-8">Loading...</div>;
+    return (
+      <div className="container mx-auto py-8">
+        <div className="flex items-center justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto py-8">
+        <div className="text-center text-destructive">{error}</div>
+      </div>
+    );
   }
 
   if (!profile) return null;

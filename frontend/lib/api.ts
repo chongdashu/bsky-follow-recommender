@@ -7,7 +7,17 @@ class ApiClient {
 
   constructor() {
     this.baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-    this.token = null;
+    this.token = this.getTokenFromCookie();
+  }
+
+  /**
+   * Gets the authentication token from cookies
+   */
+  private getTokenFromCookie(): string | null {
+    if (typeof document === "undefined") return null; // Guard for SSR
+    const cookies = document.cookie.split(';');
+    const tokenCookie = cookies.find(cookie => cookie.trim().startsWith('auth_token='));
+    return tokenCookie ? tokenCookie.split('=')[1] : null;
   }
 
   /**
@@ -15,8 +25,7 @@ class ApiClient {
    */
   setToken(token: string): void {
     this.token = token;
-    // Store token in cookie for persistence
-    document.cookie = `auth_token=${token}; path=/; max-age=86400; SameSite=Strict`; // 24 hours
+    document.cookie = `auth_token=${token}; path=/; max-age=86400; SameSite=Strict`;
   }
 
   /**
