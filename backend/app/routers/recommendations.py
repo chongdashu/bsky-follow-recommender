@@ -1,34 +1,19 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel
 
 from app.bluesky.auth import BlueskyAuthManager
-from app.bluesky.recommenders import BasicRecommender, CommonFollowersRecommender
 from app.core.logger import setup_logger
-from app.dependencies.auth import get_current_user
-from app.models.user import UserProfile
+from app.dependencies.bluesky import get_current_user
+from app.models.auth import UserProfile
+from app.models.recommendations import RecommendationsResponse, RecommendedUser
+from app.services.recommenders.basic import BasicRecommender
+from app.services.recommenders.common_followers import (
+    CommonFollowersRecommender,
+)
 
 
 logger = setup_logger(__name__)
-
-
-class RecommendedUser(BaseModel):
-    """Recommended user to follow."""
-
-    did: str
-    handle: str
-    display_name: str | None = None
-    avatar_url: str | None = None
-    follower_count: int
-    following_count: int
-    reason: str
-
-
-class RecommendationsResponse(BaseModel):
-    """Response containing recommended users to follow."""
-
-    recommendations: list[RecommendedUser]
 
 
 router = APIRouter(prefix="/recommendations", tags=["recommendations"])
@@ -93,9 +78,7 @@ async def get_recommendations(
                 avatar_url=profile.avatar,
                 follower_count=profile.followers_count or -1,
                 following_count=profile.follows_count or -1,
-                reason="Popular in your network"
-                if strategy == "basic"
-                else "Common connections",
+                reason="Popular in your network" if strategy == "basic" else "Common connections",
             )
             for profile in profiles[:limit]
         ]
