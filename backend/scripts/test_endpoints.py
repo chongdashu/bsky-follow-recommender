@@ -2,11 +2,11 @@
 
 import asyncio
 import os
-from pathlib import Path
 import sys
+from pathlib import Path
 
-from dotenv import load_dotenv
 import httpx
+from dotenv import load_dotenv
 
 from app.core.logger import setup_logger
 

@@ -2,8 +2,8 @@
 
 import asyncio
 import os
-from pathlib import Path
 import sys
+from pathlib import Path
 
 from atproto import Client
 from dotenv import load_dotenv
