@@ -1,31 +1,81 @@
-You an an expert level programmer and you will adhere to the following rules.
+# Project Context
+
+## Problem Statement
+
+- A new user to the Blue Sky social network will need to find people to follow.
+- Users would need likely want to know if people they follow on X are also on Blue Sky.
+- Users would also want to be recommended people to follow based on their initial choices people to follows.
+
+## Goals
+
+- Build a web app that allows users to connect their Blue Sky account and be recommended people to follow.
+- A new user to Blue Sky would find the web app an invaluable tool to help them find people to follow.
+- The web app should be super simple to use and navigate.
+
+# Folder Structure
+
+backend/
+├── app/
+│ ├── main.py # FastAPI app initialization
+│ ├── core/
+│ │ ├── config.py # Environment and app configuration
+│ │ └── logger.py # Logging setup
+│ └── bluesky/
+│ ├── **init**.py
+│ ├── auth.py # Blue Sky authentication functions
+│ └── api.py # Blue Sky API interaction functions
+├── scripts/
+│ ├── common/
+│ │ ├── **init**.py
+│ │ └── setup.py # Shared script configuration
+│ └── test_bluesky_auth.py # First script to test authentication
+├── pyproject.toml # Project configuration and dependencies
+└── requirements.txt # Pinned dependencies
+├── .env # environment variables
+├── .env.example # environment variables example
+
+# Programming Style
 
 ## General
-Don't be lazy, write all the code to implement features I ask for.
 
-## Backend 
-    - Use Python 3.11 and FastAPI
-    - Write concise, technical responses with accurate Python examples. 
-    - Use functional, declarative programming; avoid classes where possible. 
-    - Prefer iteration and modularization over code duplication. 
-    - Use descriptive variable names with auxiliary verbs (e.g., is_active, has_permission). 
-    - Use lowercase with underscores for directories and files (e.g., routers/user_routes.py). 
-    - Favor named exports for routes and utility functions. 
-    - Use the Receive an Object, Return an Object (RORO) pattern.  
-    - Python/FastAPI 
-        - Use def for pure functions and async def for asynchronous operations. 
-        - Use type hints for all function signatures. Prefer Pydantic models over raw dictionaries for input validation. 
-        - File structure: exported router, sub-routes, utilities, static content, types (models, schemas). 
-        - Avoid unnecessary curly braces in conditional statements. 
-        - For single-line statements in conditionals, omit curly braces. 
-        - Use concise, one-line syntax for simple conditional statements (e.g., if condition: do_something()).  Error Handling and Validation - Prioritize error handling and edge cases:  - Handle errors and edge cases at the beginning of functions.  - Use early returns for error conditions to avoid deeply nested if statements.  - Place the happy path last in the function for improved readability.  - Avoid unnecessary else statements; use the if-return pattern instead.  - Use guard clauses to handle preconditions and invalid states early.  - Implement proper error logging and user-friendly error messages.  - Use custom error types or error factories for consistent error handling.  Dependencies - FastAPI - Pydantic v2 - Async database libraries like asyncpg or aiomysql - SQLAlchemy 2.0 (if using ORM features)  FastAPI-Specific Guidelines - Use functional components (plain functions) and Pydantic models for input validation and response schemas. - Use declarative route definitions with clear return type annotations. - Use def for synchronous operations and async def for asynchronous ones. - Minimize @app.on_event("startup") and @app.on_event("shutdown"); prefer lifespan context managers for managing startup and shutdown events. - Use middleware for logging, error monitoring, and performance optimization. - Optimize for performance using async functions for I/O-bound tasks, caching strategies, and lazy loading. - Use HTTPException for expected errors and model them as specific HTTP responses. - Use middleware for handling unexpected errors, logging, and error monitoring. - Use Pydantic's BaseModel for consistent input/output validation and response schemas.   Performance Optimization - Minimize blocking I/O operations; use asynchronous operations for all database calls and external API requests. - Implement caching for static and frequently accessed data using tools like Redis or in-memory stores. - Optimize data serialization and deserialization with Pydantic. - Use lazy loading techniques for large datasets and substantial API responses.   Key Conventions 1. Rely on FastAPI’s dependency injection system for managing state and shared resources. 2. Prioritize API performance metrics (response time, latency, throughput). 3. Limit blocking operations in routes:   - Favor asynchronous and non-blocking flows.   - Use dedicated async functions for database and external API operations.   - Structure routes and dependencies clearly to optimize readability and maintainability.   Refer to FastAPI documentation for Data Models, Path Operations, and Middleware for best practices.
+- You an an expert level programmer and you will adhere to the following rules.
+- Don not be lazy, write all the code to implement features I ask for.
+
+## Backend
+
+- Use Python 3.11 and FastAPI
+- Use ruff for linting and formatting and a .toml file for configuration
+- Avoid conflicting dependencies in requirements.txt
+- Remember to create an .env.example file that mimics the .env file and includes all the variables that are needed for the app to run.
+- Always specify return types for functions.
+    - Avoid Missing type annotation for function arguments and return values.
+    - Avoid using Any type.
+- Use explicit types and/or pydantic models for all function parameters and return values.
+- Avoid relative imports.
+- Generate docstring for public modules and public nested classes
+- Write concise, technical responses with accurate Python examples. 
+- Use functional, declarative programming; avoid classes where possible. 
+- Prefer iteration and modularization over code duplication. 
+- Use descriptive variable names with auxiliary verbs (e.g., is_active, has_permission). 
+- Use lowercase with underscores for directories and files (e.g., routers/user_routes.py). 
+- Favor named exports for routes and utility functions. 
+- Use the Receive an Object, Return an Object (RORO) pattern.  
+- Python/FastAPI 
+    - Use def for pure functions and async def for asynchronous operations. 
+    - Use type hints for all function signatures. Prefer Pydantic models over raw dictionaries for input validation. 
+    - File structure: exported router, sub-routes, utilities, static content, types (models, schemas). 
+    - Avoid unnecessary curly braces in conditional statements. 
+    - For single-line statements in conditionals, omit curly braces. 
+    - Use concise, one-line syntax for simple conditional statements (e.g., if condition: do_something()).  Error Handling and Validation - Prioritize error handling and edge cases:  - Handle errors and edge cases at the beginning of functions.  - Use early returns for error conditions to avoid deeply nested if statements.  - Place the happy path last in the function for improved readability.  - Avoid unnecessary else statements; use the if-return pattern instead.  - Use guard clauses to handle preconditions and invalid states early.  - Implement proper error logging and user-friendly error messages.  - Use custom error types or error factories for consistent error handling.  Dependencies - FastAPI - Pydantic v2 - Async database libraries like asyncpg or aiomysql - SQLAlchemy 2.0 (if using ORM features)  FastAPI-Specific Guidelines - Use functional components (plain functions) and Pydantic models for input validation and response schemas. - Use declarative route definitions with clear return type annotations. - Use def for synchronous operations and async def for asynchronous ones. - Minimize @app.on_event("startup") and @app.on_event("shutdown"); prefer lifespan context managers for managing startup and shutdown events. - Use middleware for logging, error monitoring, and performance optimization. - Optimize for performance using async functions for I/O-bound tasks, caching strategies, and lazy loading. - Use HTTPException for expected errors and model them as specific HTTP responses. - Use middleware for handling unexpected errors, logging, and error monitoring. - Use Pydantic's BaseModel for consistent input/output validation and response schemas.   Performance Optimization - Minimize blocking I/O operations; use asynchronous operations for all database calls and external API requests. - Implement caching for static and frequently accessed data using tools like Redis or in-memory stores. - Optimize data serialization and deserialization with Pydantic. - Use lazy loading techniques for large datasets and substantial API responses.   Key Conventions 1. Rely on FastAPI’s dependency injection system for managing state and shared resources. 2. Prioritize API performance metrics (response time, latency, throughput). 3. Limit blocking operations in routes:   - Favor asynchronous and non-blocking flows.   - Use dedicated async functions for database and external API operations.   - Structure routes and dependencies clearly to optimize readability and maintainability.   Refer to FastAPI
 
 ## Frontend
-    - Use Typescript, Shadcn, TailwindCSS
-    - Focus on producing clear, readable React and TypeScript code 
-    - Use the latest stable version of TypeScript, JavaScript, React, Node.js, Next.js App Router, Shaden UI, Tailwind CSS and you are familiar with the Latest features and best practices. 
 
-## Chrome Extensions 
+    - Use Typescript, Shadcn, TailwindCSS
+    - Focus on producing clear, readable React and TypeScript code
+    - Use the latest stable version of TypeScript, JavaScript, React, Node.js, Next.js App Router, Shaden UI, Tailwind CSS and you are familiar with the Latest features and best practices.
+
+## Chrome Extensions
+
     - Use Manifest V3
     - Use TypeScript, HTML, CSS, Shadcn UI, Tailwind and Web APIs.
     - Write concise, technical JavaScript/TypeScript code with accurate examples
@@ -50,3 +100,46 @@ Don't be lazy, write all the code to implement features I ask for.
     - When answering questions or providing solutions, take into account previously discussed or implemented features to prevent contradictions or repetitionsCode Output:
     - When providing code, always output the entire file content, not just new or modified parts- Include all necessary imports, declarations, and surrounding code to ensure the file is complete and functional
     - Provide comments or explanations for significant changes or additions within the file- If the file is too large to reasonably include in full, provide the most relevant complete section and clearly indicate where it fits in the larger file structureFollow Chrome Extension documentation for best practices, security guidelines, and API usage.
+
+## Git
+
+When I say "/commit", you will give me the deliminated terminal command that will add files, include a full descriptive commit message, commit and push to git based on the Diff of Working State.
+When I say "/diff", you will summarise the diff of the working state.
+
+[git.commit]
+# Commit message pattern: <type>(<scope>): <description>
+# Example: feat(auth): add OAuth2 authentication
+pattern = "^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(?:\\([a-z ]+\\))?: [a-z].*$"
+
+# Commit types
+types = [
+  "build",    # Changes affecting build system or external dependencies
+  "chore",    # Regular maintenance tasks
+  "ci",       # Changes to CI configuration files and scripts
+  "docs",     # Documentation only changes
+  "feat",     # New features
+  "fix",      # Bug fixes
+  "perf",     # Performance improvements
+  "refactor", # Code changes that neither fix bugs nor add features
+  "revert",   # Revert previous commits
+  "style",    # Changes that do not affect code meaning (formatting, etc)
+  "test"      # Adding or modifying tests
+]
+
+# Maximum length for commit message title
+title_max_length = 72
+
+# Maximum length for commit message body
+body_max_length = 100
+
+# Require scope in commit message
+require_scope = false
+
+# Require body in commit message
+require_body = false
+
+# Require issue reference in commit message
+require_issue = false
+
+# Issue reference pattern (e.g., #123 or PROJECT-123)
+issue_pattern = "(#\\d+|[A-Z]+-\\d+)" 

@@ -1,45 +1,56 @@
-from pydantic_settings import BaseSettings
-from typing import List
+"""Application configuration management using Pydantic settings."""
+
 from functools import lru_cache
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    """
-    Application settings and environment variables configuration.
+    """Application settings.
 
     Attributes:
-        PROJECT_NAME: Name of the project
-        VERSION: API version
-        API_PREFIX: Prefix for all API endpoints
+        API_V1_STR: API version 1 string prefix
+        BLUESKY_API_URL: Blue Sky API base URL
+        BLUESKY_IDENTIFIER: Blue Sky user identifier
+        BLUESKY_PASSWORD: Blue Sky user password
         DEBUG: Debug mode flag
-        BLUESKY_IDENTIFIER: Bluesky account identifier (email)
-        BLUESKY_PASSWORD: Bluesky account password
-        BLUESKY_SERVICE: Bluesky service URL
-        ALLOWED_HOSTS: List of allowed hosts for CORS
+        CORS_ORIGINS: List of allowed CORS origins
+        JWT_SECRET_KEY: JWT secret key
+        JWT_ALGORITHM: JWT algorithm
+        ACCESS_TOKEN_EXPIRE_MINUTES: Access token expiration minutes
+        REFRESH_TOKEN_EXPIRE_MINUTES: Refresh token expiration minutes
     """
 
-    PROJECT_NAME: str = "Bluesky Recommendations API"
-    VERSION: str = "1.0.0"
-    API_PREFIX: str = "/api/v1"
-    DEBUG: bool = False
-
-    # Bluesky Configuration
+    API_V1_STR: str
+    BLUESKY_API_URL: str
     BLUESKY_IDENTIFIER: str
     BLUESKY_PASSWORD: str
-    BLUESKY_SERVICE: str = "https://bsky.social"
+    DEBUG: bool = False
+    CORS_ORIGINS: str
+    JWT_SECRET_KEY: str
+    JWT_ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 7 days
 
-    # CORS Configuration
-    ALLOWED_HOSTS: List[str] = ["http://localhost:3000"]
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        case_sensitive=True,
+        extra="allow",
+    )
 
-    class Config:
-        env_file = ".env"
-        case_sensitive = True
+    @property
+    def cors_origins(self) -> list[str]:
+        """Parse CORS_ORIGINS string into list.
+
+        Returns:
+            list[str]: List of allowed CORS origins
+        """
+        return [origin.strip() for origin in self.CORS_ORIGINS.split(",") if origin]
 
 
-@lru_cache()
+@lru_cache
 def get_settings() -> Settings:
-    """
-    Creates and caches the settings instance.
+    """Get cached settings instance.
 
     Returns:
         Settings: Application settings instance

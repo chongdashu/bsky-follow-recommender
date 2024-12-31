@@ -1,6 +1,43 @@
-fastapi>=0.104.0
-uvicorn>=0.24.0
-pydantic>=2.4.2
-pydantic-settings>=2.0.3
-atproto>=0.0.31
-python-dotenv>=1.0.0 
+# Web Framework
+fastapi==0.109.2
+uvicorn[standard]==0.27.1
+
+# Data Validation and Settings Management
+pydantic==2.6.1
+pydantic-settings==2.1.0
+python-dotenv==1.0.1
+
+# HTTP Clients
+httpx==0.25.2
+aiohttp==3.9.3
+
+# Blue Sky API
+atproto==0.0.43
+
+# Authentication and Security
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+
+# Database
+sqlalchemy==2.0.25
+asyncpg==0.29.0
+alembic==1.13.1
+
+# Caching
+redis==5.0.1
+
+# Logging and Monitoring
+structlog==24.1.0
+
+# Testing
+pytest==8.0.0
+pytest-asyncio==0.23.5
+pytest-cov==4.1.0
+
+# Development Tools
+ruff==0.2.1
+black==24.1.1
+mypy==1.8.0
+
+# Production
+gunicorn==21.2.0 
