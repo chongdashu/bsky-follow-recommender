@@ -1,13 +1,8 @@
+"""Authentication-related models."""
+
 from datetime import datetime
 
 from pydantic import BaseModel, Field
-
-
-class UserAuth(BaseModel):
-    """Authentication data for a Blue Sky user"""
-
-    identifier: str = Field(..., description="Blue Sky identifier (handle or email)")
-    password: str = Field(..., description="Blue Sky password")
 
 
 class UserProfile(BaseModel):
@@ -22,9 +17,16 @@ class UserProfile(BaseModel):
     created_at: datetime = Field(..., description="Account creation timestamp")
 
 
+class UserAuth(BaseModel):
+    """Authentication data for a Blue Sky user"""
+
+    identifier: str = Field(..., description="Blue Sky identifier (handle or email)")
+    password: str = Field(..., description="Blue Sky password")
+
+
 class AuthResponse(BaseModel):
     """Response containing authentication tokens and user profile"""
 
     access_jwt: str = Field(..., description="JWT access token")
     refresh_jwt: str = Field(..., description="JWT refresh token")
-    profile: UserProfile = Field(..., description="User profile information")
+    profile: "UserProfile" = Field(..., description="User profile information")

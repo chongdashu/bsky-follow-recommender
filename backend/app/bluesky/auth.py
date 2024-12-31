@@ -8,7 +8,7 @@ from jose import jwt
 
 from app.core.config import get_settings
 from app.core.logger import setup_logger
-from app.models.user import AuthResponse, UserProfile
+from app.models.auth import AuthResponse, UserProfile
 
 
 logger = setup_logger(__name__)

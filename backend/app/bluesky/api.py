@@ -1,17 +1,16 @@
 """Blue Sky API client functions for fetching user data and recommendations."""
 
 from atproto import Client, models as bsky_models
+from backend.app.services.recommenders.base import RecommenderProtocol
+from backend.app.services.recommenders.basic import BasicRecommender
 
-from app.bluesky.recommenders import BasicRecommender, RecommenderProtocol
 from app.core.logger import setup_logger
 
 
 logger = setup_logger(__name__)
 
 
-async def get_user_follows(
-    client: Client, actor: str
-) -> list[bsky_models.AppBskyActorDefs.ProfileView]:
+async def get_user_follows(client: Client, actor: str) -> list[bsky_models.AppBskyActorDefs.ProfileView]:
     """Get list of accounts that a user follows.
 
     Args:

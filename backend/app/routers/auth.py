@@ -3,7 +3,7 @@
 from fastapi import APIRouter, HTTPException, status
 
 from app.bluesky.auth import authenticate_user
-from app.models.user import AuthResponse, UserAuth
+from app.models.auth import AuthResponse, UserAuth
 
 
 router = APIRouter(prefix="/auth", tags=["auth"])
