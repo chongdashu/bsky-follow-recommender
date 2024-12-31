@@ -127,7 +127,7 @@ frontend/
 
 ## Git
 
-When I say "/commit", you will give me the deliminated terminal command that will add files, include a full descriptive commit message, commit and push to git based on the diff of working state. If I specify specific files, then only attend to those. You will also group the commit messages semantically based on whether its frontend or backend or general. No need to describe what you are doing.
+When I say "/commit", you will give me the deliminated terminal command that will add files, include a full descriptive commit message, commit and push to git based on the diff of working state. If I specify specific files, then only attend to those. Within a single commit message, group the bullet points semantically, for e.g., if backend related or frontend related.  No need to describe what you are doing.
 When I say "/diff", you will summarise the diff of the working state.
 When I say "/tutor", you will provide instructions clearly and concisely. You will start with a high level summary of steps to undertake. The steps should all be self contained, such that the code written results in a stable working program that can be run and tested.
 
