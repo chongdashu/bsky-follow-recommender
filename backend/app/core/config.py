@@ -9,7 +9,6 @@ class Settings(BaseSettings):
     """Application settings.
 
     Attributes:
-        API_V1_STR: API version 1 string prefix
         BLUESKY_API_URL: Blue Sky API base URL
         BLUESKY_IDENTIFIER: Blue Sky user identifier
         BLUESKY_PASSWORD: Blue Sky user password
@@ -21,7 +20,6 @@ class Settings(BaseSettings):
         REFRESH_TOKEN_EXPIRE_MINUTES: Refresh token expiration minutes
     """
 
-    API_V1_STR: str
     BLUESKY_API_URL: str
     BLUESKY_IDENTIFIER: str
     BLUESKY_PASSWORD: str

@@ -32,7 +32,7 @@ class ApiClient {
    * Authenticates a user with their Blue Sky credentials
    */
   async login(credentials: LoginCredentials): Promise<LoginResponse> {
-    const response = await fetch(`${this.baseUrl}/v1/auth/login`, {
+    const response = await fetch(`${this.baseUrl}/auth/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
