@@ -36,3 +36,14 @@ export interface RecommendationsResponse {
   recommendations: UserProfile[];
   existingFollows: UserProfile[];
 }
+
+export interface BlueskyProfile {
+  did: string;
+  handle: string;
+  displayName: string;
+  description: string | null;
+  avatar: string | null;
+  followersCount: number;
+  followsCount: number;
+  postsCount: number;
+}

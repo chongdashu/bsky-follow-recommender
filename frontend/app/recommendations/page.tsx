@@ -1,81 +1,80 @@
 "use client";
 
-import { FollowCard } from "@/components/recommendations/follow-card";
-import { Button } from "@/components/ui/button";
-import { api } from "@/lib/api";
-import { UserProfile } from "@/types";
-import { useState } from "react";
+import { ProfileCard } from "@/components/recommendations/profile-card";
+import { Separator } from "@/components/ui/separator";
+import { BlueskyProfile } from "@/types";
+import { useEffect, useState } from "react";
 
 export default function RecommendationsPage() {
-  const [existingFollows, setExistingFollows] = useState<UserProfile[]>([]);
-  const [recommendations, setRecommendations] = useState<UserProfile[]>([]);
-  const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set());
-  const [loading, setLoading] = useState(false);
+  const [profile, setProfile] = useState<BlueskyProfile | null>(null);
+  const [follows, setFollows] = useState<BlueskyProfile[]>([]);
 
-  async function handleGetRecommendations() {
-    setLoading(true);
-    try {
-      const response = await api.getRecommendations(Array.from(selectedUsers));
-      setRecommendations(response.recommendations);
-    } catch (error) {
-      console.error("Failed to fetch recommendations:", error);
-      // If unauthorized, clear token and redirect
-      if (error instanceof Error && error.message.includes("401")) {
-        api.clearToken();
-      }
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  function handleUserSelect(did: string) {
-    setSelectedUsers((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(did)) {
-        newSet.delete(did);
-      } else {
-        newSet.add(did);
-      }
-      return newSet;
+  useEffect(() => {
+    // TODO: Replace with actual API calls
+    setProfile({
+      did: "did:plc:123",
+      handle: "alice.bsky.social",
+      displayName: "Alice",
+      description: "Just a girl in a Bluesky world",
+      avatar: "https://example.com/avatar.jpg",
+      followersCount: 1234,
+      followsCount: 567,
+      postsCount: 890,
     });
-  }
+
+    setFollows([
+      {
+        did: "did:plc:456",
+        handle: "bob.bsky.social",
+        displayName: "Bob",
+        description: "Software developer and coffee enthusiast",
+        avatar: "https://example.com/bob-avatar.jpg",
+        followersCount: 2345,
+        followsCount: 678,
+        postsCount: 901,
+      },
+      {
+        did: "did:plc:789",
+        handle: "carol.bsky.social",
+        displayName: "Carol",
+        description: "Digital artist • Photography • Design",
+        avatar: "https://example.com/carol-avatar.jpg",
+        followersCount: 3456,
+        followsCount: 789,
+        postsCount: 912,
+      },
+      {
+        did: "did:plc:012",
+        handle: "dave.bsky.social",
+        displayName: "Dave",
+        description: "Tech writer and blockchain enthusiast",
+        avatar: null,
+        followersCount: 4567,
+        followsCount: 890,
+        postsCount: 923,
+      },
+    ]);
+  }, []);
+
+  if (!profile) return null;
 
   return (
     <div className="container mx-auto py-8">
-      <h1 className="text-3xl font-bold mb-8">Find People to Follow</h1>
+      <div className="mb-8">
+        <h2 className="mb-4 text-2xl font-bold">Your Profile</h2>
+        <ProfileCard profile={profile} size="lg" />
+      </div>
 
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-4">Select People You Follow</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {existingFollows.map((user) => (
-            <FollowCard
-              key={user.did}
-              user={user}
-              selectable
-              selected={selectedUsers.has(user.did)}
-              onSelect={handleUserSelect}
-            />
+      <Separator className="my-8" />
+
+      <div>
+        <h2 className="mb-4 text-2xl font-bold">People You Follow</h2>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {follows.map((follow) => (
+            <ProfileCard key={follow.did} profile={follow} />
           ))}
         </div>
-        <Button
-          className="mt-4"
-          onClick={handleGetRecommendations}
-          disabled={loading || selectedUsers.size === 0}
-        >
-          {loading ? "Getting Recommendations..." : "Get Recommendations"}
-        </Button>
-      </section>
-
-      {recommendations.length > 0 && (
-        <section>
-          <h2 className="text-xl font-semibold mb-4">Recommended Follows</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {recommendations.map((user) => (
-              <FollowCard key={user.did} user={user} />
-            ))}
-          </div>
-        </section>
-      )}
+      </div>
     </div>
   );
 }
