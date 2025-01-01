@@ -105,6 +105,27 @@ class ApiClient {
 
     return response.json();
   }
+
+  /**
+   * Fetches the list of accounts the current user follows
+   */
+  async getFollows(): Promise<BlueskyProfile[]> {
+    if (!this.token) {
+      throw new Error("Not authenticated");
+    }
+
+    const response = await fetch(`${this.baseUrl}/v1/follows`, {
+      headers: {
+        Authorization: `Bearer ${this.token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch follows");
+    }
+
+    return response.json();
+  }
 }
 
 export const api = new ApiClient();

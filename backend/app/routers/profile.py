@@ -5,6 +5,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
 
+from app.bluesky.api import get_user_follows
 from app.bluesky.auth import BlueskyAuthManager
 from app.dependencies.bluesky import get_current_user
 from app.models.auth import UserProfile
@@ -44,3 +45,36 @@ async def get_current_profile(
         followsCount=profile.follows_count or 0,
         postsCount=profile.posts_count or 0,
     )
+
+
+@router.get("/follows", response_model=list[BlueskyProfileResponse])
+async def get_follows(
+    current_user: Annotated[UserProfile, Depends(get_current_user)],
+) -> list[BlueskyProfileResponse]:
+    """Get the list of accounts that the current user follows.
+
+    Args:
+        current_user: The authenticated user's profile from the JWT token
+
+    Returns:
+        List of BlueskyProfileResponse: The profiles of followed accounts
+    """
+    client = BlueskyAuthManager.get_client(current_user.did)
+    if not client:
+        raise HTTPException(status_code=HTTPStatus.UNAUTHORIZED, detail="No authenticated client found")
+
+    follows = await get_user_follows(client, current_user.did)
+
+    return [
+        BlueskyProfileResponse(
+            did=profile.did,
+            handle=profile.handle,
+            displayName=profile.display_name or profile.handle,
+            description=profile.description,
+            avatar=profile.avatar,
+            followersCount=profile.followers_count or 0,
+            followsCount=profile.follows_count or 0,
+            postsCount=profile.posts_count or 0,
+        )
+        for profile in follows
+    ]

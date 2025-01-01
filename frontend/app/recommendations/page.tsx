@@ -17,11 +17,15 @@ export default function RecommendationsPage() {
   const { toast } = useToast();
 
   useEffect(() => {
-    async function loadProfile() {
+    async function loadData() {
       try {
         setError(null);
-        const userProfile = await api.getCurrentProfile();
+        const [userProfile, userFollows] = await Promise.all([
+          api.getCurrentProfile(),
+          api.getFollows(),
+        ]);
         setProfile(userProfile);
+        setFollows(userFollows);
       } catch (error) {
         const errorMessage =
           "Failed to load profile. Please try logging in again.";
@@ -31,15 +35,18 @@ export default function RecommendationsPage() {
           title: "Error",
           description: errorMessage,
         });
-        // Redirect to login if unauthorized
         router.push("/login");
       } finally {
         setLoading(false);
       }
     }
 
-    loadProfile();
+    loadData();
   }, [router, toast]);
+
+  const handleProfileClick = (handle: string) => {
+    window.open(`https://bsky.app/profile/${handle}`, "_blank");
+  };
 
   if (loading) {
     return (
@@ -72,9 +79,15 @@ export default function RecommendationsPage() {
 
       <div>
         <h2 className="mb-4 text-2xl font-bold">People You Follow</h2>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 max-h-[600px] overflow-y-auto">
           {follows.map((follow) => (
-            <ProfileCard key={follow.did} profile={follow} />
+            <div
+              key={follow.did}
+              onClick={() => handleProfileClick(follow.handle)}
+              className="cursor-pointer transition-transform hover:scale-[1.02]"
+            >
+              <ProfileCard profile={follow} />
+            </div>
           ))}
         </div>
       </div>
