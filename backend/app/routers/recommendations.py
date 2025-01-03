@@ -1,13 +1,13 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from pydantic import BaseModel
 
 from app.bluesky.auth import BlueskyAuthManager
 from app.core.logger import setup_logger
 from app.dependencies.bluesky import get_current_user
 from app.models.auth import UserProfile
 from app.models.recommendations import RecommendationsResponse, RecommendedUser
-from app.services.recommenders.basic import BasicRecommender
 from app.services.recommenders.common_followers import (
     CommonFollowersRecommender,
 )
@@ -19,17 +19,22 @@ logger = setup_logger(__name__)
 router = APIRouter(prefix="/recommendations", tags=["recommendations"])
 
 
-@router.get("/", response_model=RecommendationsResponse)
+# Add request model for seed handles
+class RecommendationRequest(BaseModel):
+    seed_handles: list[str]
+
+
+@router.post("/", response_model=RecommendationsResponse)
 async def get_recommendations(
     current_user: Annotated[UserProfile, Depends(get_current_user)],
-    strategy: str = "basic",
+    request: RecommendationRequest,  # Change to use request body
     limit: int = 10,
 ) -> RecommendationsResponse:
-    """Get personalized user recommendations.
+    """Get personalized user recommendations based on seed accounts.
 
     Args:
         current_user: The authenticated user's profile
-        strategy: Recommendation strategy ('basic' or 'common_followers')
+        request: Request containing seed handles
         limit: Maximum number of recommendations to return
 
     Returns:
@@ -50,21 +55,11 @@ async def get_recommendations(
         if hasattr(client, "_session") and client._session:
             client._session.timeout = 30.0
 
-        # Choose recommender based on strategy
-        if strategy == "basic":
-            recommender = BasicRecommender()
-        elif strategy == "common_followers":
-            # Use some popular tech accounts as seeds
-            recommender = CommonFollowersRecommender(
-                seed_accounts=[
-                    "togelius.bsky.social",
-                    "hamel.bsky.social",
-                    "karpathy.bsky.social",
-                ],
-                min_common_follows=2,
-            )
-        else:
-            raise ValueError(f"Invalid recommendation strategy: {strategy}")
+        # Use common followers recommender with provided seed accounts
+        recommender = CommonFollowersRecommender(
+            seed_accounts=request.seed_handles,  # Use handles from request
+            min_common_follows=2,
+        )
 
         # Get recommendations
         profiles = await recommender.get_recommendations(client, current_user.did)
@@ -78,7 +73,7 @@ async def get_recommendations(
                 avatar_url=profile.avatar,
                 follower_count=profile.followers_count or -1,
                 following_count=profile.follows_count or -1,
-                reason="Popular in your network" if strategy == "basic" else "Common connections",
+                reason="Common connections",
             )
             for profile in profiles[:limit]
         ]

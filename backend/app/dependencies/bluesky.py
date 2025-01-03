@@ -10,8 +10,11 @@ from jose import JWTError, jwt
 
 from app.bluesky.auth import BlueskyAuthManager, create_bluesky_client
 from app.core.config import get_settings
+from app.core.logger import setup_logger
 from app.models.auth import UserAuth, UserProfile
 
+
+logger = setup_logger(__name__)
 
 security = HTTPBearer()
 settings = get_settings()
@@ -40,15 +43,17 @@ async def get_current_user(
         )
 
         did: str = payload.get("sub")
+        logger.info(f"Looking up client for DID: {did}")
         if not did:
             raise ValueError("Invalid token payload")
 
         # Get cached client
         client = BlueskyAuthManager.get_client(did)
-        if not client:
-            raise ValueError("No authenticated client found")
+        logger.info(f"Found client: {client is not None}")
 
         # Get current profile
+
+        # Use client for this request only
         profile = client.app.bsky.actor.get_profile({"actor": did})
 
         return UserProfile(

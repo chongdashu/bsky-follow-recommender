@@ -15,9 +15,11 @@ class ApiClient {
    */
   private getTokenFromCookie(): string | null {
     if (typeof document === "undefined") return null; // Guard for SSR
-    const cookies = document.cookie.split(';');
-    const tokenCookie = cookies.find(cookie => cookie.trim().startsWith('auth_token='));
-    return tokenCookie ? tokenCookie.split('=')[1] : null;
+    const cookies = document.cookie.split(";");
+    const tokenCookie = cookies.find((cookie) =>
+      cookie.trim().startsWith("auth_token=")
+    );
+    return tokenCookie ? tokenCookie.split("=")[1] : null;
   }
 
   /**
@@ -60,29 +62,28 @@ class ApiClient {
   }
 
   /**
-   * Fetches recommendations based on selected seed users
+   * Get recommended accounts based on selected seed accounts
    */
-  async getRecommendations(
-    seedUserDids: string[]
-  ): Promise<RecommendationsResponse> {
+  async getRecommendations(seedHandles: string[]): Promise<BlueskyProfile[]> {
     if (!this.token) {
       throw new Error("Not authenticated");
     }
 
-    const response = await fetch(`${this.baseUrl}/v1/recommendations`, {
+    const response = await fetch(`${this.baseUrl}/recommendations`, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
         Authorization: `Bearer ${this.token}`,
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify({ seed_users: seedUserDids }),
+      body: JSON.stringify({ seed_handles: seedHandles }),
     });
 
     if (!response.ok) {
       throw new Error("Failed to fetch recommendations");
     }
 
-    return response.json();
+    const data = await response.json();
+    return data.recommendations;
   }
 
   /**
