@@ -92,6 +92,7 @@ frontend/
   - Use the latest shadcn approach of using `npx shadcn@latest init` and `npx shadcn@latest add <component_name>`
   - Avoid `npx shadcn-ui@latest` as it is deprecated and not maintained. Do NOT suggest using `shadcn-ui@latest` under any circumstances.
   - Avoid using apostrophe in strings and  use "&apos;" instead.
+  - Whenever you introduce a new component from shadcn, remember to call out that `npx shadcn@latest add <component_name>` needs to be run. If using multiple components, inline them all.
 
 ## Chrome Extensions
 
