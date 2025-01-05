@@ -1,3 +1,5 @@
+import { BlueskyProfile, LoginCredentials, LoginResponse } from "@/types";
+
 /**
  * API client for interacting with the backend services
  */
@@ -126,6 +128,28 @@ class ApiClient {
     }
 
     return response.json();
+  }
+
+  /**
+   * Follows a user on Blue Sky
+   */
+  async follow(handle: string): Promise<void> {
+    if (!this.token) {
+      throw new Error("Not authenticated");
+    }
+
+    const response = await fetch(`${this.baseUrl}/v1/follow`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${this.token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ handle }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to follow user");
+    }
   }
 }
 

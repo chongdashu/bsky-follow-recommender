@@ -2,12 +2,14 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { BlueskyProfile } from "@/types";
-import { X } from "lucide-react";
+import { UserPlus, X } from "lucide-react";
 
 interface RecommendationCardProps {
   profile: BlueskyProfile;
   onDismiss: () => void;
   onClick: () => void;
+  onFollow: () => void;
+  isFollowing?: boolean;
 }
 
 /**
@@ -17,15 +19,22 @@ export function RecommendationCard({
   profile,
   onDismiss,
   onClick,
+  onFollow,
+  isFollowing = false,
 }: RecommendationCardProps) {
   const handleDismiss = (e: React.MouseEvent) => {
     e.stopPropagation();
     onDismiss();
   };
 
+  const handleFollow = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onFollow();
+  };
+
   return (
     <Card
-      className="w-[300px] relative cursor-pointer hover:shadow-md transition-shadow"
+      className="w-[350px] h-[400px] relative cursor-pointer hover:shadow-md transition-shadow flex flex-col"
       onClick={onClick}
     >
       <Button
@@ -48,23 +57,35 @@ export function RecommendationCard({
           <p className="text-sm text-muted-foreground">@{profile.handle}</p>
         </div>
       </CardHeader>
-      <CardContent>
-        <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
-          {profile.description}
-        </p>
-        <div className="flex gap-4 text-sm">
-          <div>
-            <span className="font-semibold">{profile.followersCount}</span>
-            <span className="ml-1 text-muted-foreground">Followers</span>
+      <CardContent className="flex flex-col flex-1">
+        <div className="grid grid-cols-3 gap-2 text-sm mb-4">
+          <div className="text-center">
+            <div className="font-semibold">{profile.followersCount}</div>
+            <div className="text-muted-foreground text-xs">Followers</div>
           </div>
-          <div>
-            <span className="font-semibold">{profile.followsCount}</span>
-            <span className="ml-1 text-muted-foreground">Following</span>
+          <div className="text-center">
+            <div className="font-semibold">{profile.followsCount}</div>
+            <div className="text-muted-foreground text-xs">Following</div>
           </div>
-          <div>
-            <span className="font-semibold">{profile.postsCount}</span>
-            <span className="ml-1 text-muted-foreground">Posts</span>
+          <div className="text-center">
+            <div className="font-semibold">{profile.postsCount}</div>
+            <div className="text-muted-foreground text-xs">Posts</div>
           </div>
+        </div>
+        <div className="flex-1 overflow-y-auto">
+          <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+            {profile.description}
+          </p>
+        </div>
+        <div className="pt-4">
+          <Button
+            className="w-full"
+            variant={isFollowing ? "secondary" : "default"}
+            onClick={handleFollow}
+          >
+            <UserPlus className="h-4 w-4 mr-2" />
+            {isFollowing ? "Following" : "Follow"}
+          </Button>
         </div>
       </CardContent>
     </Card>

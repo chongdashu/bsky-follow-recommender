@@ -19,6 +19,7 @@ export default function RecommendationsPage() {
   const [selectedSeeds, setSelectedSeeds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [fetchingRecommendations, setFetchingRecommendations] = useState(false);
+  const [following, setFollowing] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const { toast } = useToast();
@@ -33,7 +34,8 @@ export default function RecommendationsPage() {
         ]);
         setProfile(userProfile);
         setFollows(userFollows);
-      } catch (error) {
+        setFollowing(new Set(userFollows.map((f) => f.handle)));
+      } catch {
         const errorMessage =
           "Failed to load profile. Please try logging in again.";
         setError(errorMessage);
@@ -87,7 +89,7 @@ export default function RecommendationsPage() {
         title: "Success",
         description: `Found ${recommendations.length} recommendations`,
       });
-    } catch (error) {
+    } catch {
       toast({
         variant: "destructive",
         title: "Error",
@@ -100,6 +102,23 @@ export default function RecommendationsPage() {
 
   const handleDismissRecommendation = (did: string) => {
     setRecommendations((prev) => prev.filter((rec) => rec.did !== did));
+  };
+
+  const handleFollow = async (handle: string) => {
+    try {
+      await api.follow(handle);
+      setFollowing((prev) => new Set([...prev, handle]));
+      toast({
+        title: "Success",
+        description: `You are now following @${handle}`,
+      });
+    } catch {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: `Failed to follow @${handle}`,
+      });
+    }
   };
 
   if (loading) {
@@ -146,7 +165,7 @@ export default function RecommendationsPage() {
             </CardContent>
           </Card>
         ) : (
-          <div className="relative">
+          <div className="relative animate-in fade-in duration-500">
             <ScrollArea className="w-full whitespace-nowrap rounded-md border">
               <div className="flex w-max space-x-4 p-4">
                 {recommendations.map((recommendation) => (
@@ -157,6 +176,8 @@ export default function RecommendationsPage() {
                       handleDismissRecommendation(recommendation.did)
                     }
                     onClick={() => handleProfileClick(recommendation.handle)}
+                    onFollow={() => handleFollow(recommendation.handle)}
+                    isFollowing={following.has(recommendation.handle)}
                   />
                 ))}
               </div>
@@ -196,7 +217,6 @@ export default function RecommendationsPage() {
               selectable
               selected={selectedSeeds.has(follow.handle)}
               onSelect={() => handleSeedToggle(follow.handle)}
-              onClick={() => handleProfileClick(follow.handle)}
             />
           ))}
         </div>
