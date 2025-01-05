@@ -23,19 +23,19 @@ export interface LoginResponse {
 export interface UserProfile {
   did: string;
   handle: string;
-  displayName?: string;
-  avatar?: string;
-  description?: string;
-  followersCount?: number;
-  followingCount?: number;
+  displayName: string;
+  description: string | null;
+  avatar: string | null;
+  followersCount: number;
+  followsCount: number;
+  postsCount: number;
 }
 
 /**
  * Recommendation related types
  */
 export interface RecommendationsResponse {
-  recommendations: UserProfile[];
-  existingFollows: UserProfile[];
+  recommendations: BlueskyProfile[];
 }
 
 export interface BlueskyProfile {

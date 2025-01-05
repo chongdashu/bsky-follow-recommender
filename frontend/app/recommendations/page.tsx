@@ -1,7 +1,10 @@
 "use client";
 
 import { ProfileCard } from "@/components/recommendations/profile-card";
+import { RecommendationCard } from "@/components/recommendations/recommendation-card";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { api } from "@/lib/api";
@@ -95,6 +98,10 @@ export default function RecommendationsPage() {
     }
   };
 
+  const handleDismissRecommendation = (did: string) => {
+    setRecommendations((prev) => prev.filter((rec) => rec.did !== did));
+  };
+
   if (loading) {
     return (
       <div className="container mx-auto py-8">
@@ -125,6 +132,43 @@ export default function RecommendationsPage() {
       <Separator className="my-8" />
 
       <div className="mb-8">
+        <h2 className="text-2xl font-bold mb-4">Recommended Accounts</h2>
+        {recommendations.length === 0 ? (
+          <Card className="bg-muted">
+            <CardContent className="py-8">
+              <div className="text-center">
+                <h3 className="font-semibold mb-2">No Recommendations Yet</h3>
+                <p className="text-sm text-muted-foreground">
+                  Select at least 2 seed accounts below to get personalized
+                  recommendations
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="relative">
+            <ScrollArea className="w-full whitespace-nowrap rounded-md border">
+              <div className="flex w-max space-x-4 p-4">
+                {recommendations.map((recommendation) => (
+                  <RecommendationCard
+                    key={recommendation.did}
+                    profile={recommendation}
+                    onDismiss={() =>
+                      handleDismissRecommendation(recommendation.did)
+                    }
+                    onClick={() => handleProfileClick(recommendation.handle)}
+                  />
+                ))}
+              </div>
+              <ScrollBar orientation="horizontal" />
+            </ScrollArea>
+          </div>
+        )}
+      </div>
+
+      <Separator className="my-8" />
+
+      <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-bold">Select Seed Accounts</h2>
           <Button
@@ -133,7 +177,7 @@ export default function RecommendationsPage() {
           >
             {fetchingRecommendations ? (
               <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground"></div>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground mr-2" />
                 Getting Recommendations...
               </>
             ) : (
@@ -146,41 +190,17 @@ export default function RecommendationsPage() {
         </p>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 max-h-[600px] overflow-y-auto">
           {follows.map((follow) => (
-            <div
+            <ProfileCard
               key={follow.did}
+              profile={follow}
+              selectable
+              selected={selectedSeeds.has(follow.handle)}
+              onSelect={() => handleSeedToggle(follow.handle)}
               onClick={() => handleProfileClick(follow.handle)}
-              className="cursor-pointer transition-transform hover:scale-[1.02]"
-            >
-              <ProfileCard
-                profile={follow}
-                selectable
-                selected={selectedSeeds.has(follow.handle)}
-                onSelect={() => handleSeedToggle(follow.handle)}
-              />
-            </div>
+            />
           ))}
         </div>
       </div>
-
-      {recommendations.length > 0 && (
-        <>
-          <Separator className="my-8" />
-          <div>
-            <h2 className="mb-4 text-2xl font-bold">Recommended Accounts</h2>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {recommendations.map((recommendation) => (
-                <div
-                  key={recommendation.did}
-                  onClick={() => handleProfileClick(recommendation.handle)}
-                  className="cursor-pointer transition-transform hover:scale-[1.02]"
-                >
-                  <ProfileCard profile={recommendation} />
-                </div>
-              ))}
-            </div>
-          </div>
-        </>
-      )}
     </div>
   );
 }
